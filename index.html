@@ -1,194 +1,111 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>炫酷透明按钮</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: linear-gradient(135deg, #1a1a3d, #2a4066);
-            font-family: 'Courier New', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            touch-action: manipulation; /* 优化安卓触摸 */
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>白落是笨蛋</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #222, #000 80%);
+      font-family: 'Segoe UI', sans-serif;
+      touch-action: manipulation;
+    }
 
-        /* 背景像素画（梦日记风格） */
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('https://i.imgur.com/5zK8X4i.png') repeat; /* 梦日记风格像素背景 */
-            opacity: 0.3;
-            z-index: -1;
-            animation: pixelShift 20s linear infinite;
-        }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: url('https://i.imgur.com/6mK3VHP.jpeg') center/cover no-repeat;
+      opacity: 0.15;
+      z-index: 0;
+    }
 
-        @keyframes pixelShift {
-            0% { background-position: 0 0; }
-            100% { background-position: 100px 100px; }
-        }
+    .btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px 40px;
+      font-size: 1.5em;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid #fff;
+      border-radius: 20px;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 0 10px #fff, 0 0 40px #0ff, 0 0 80px #f0f;
+    }
 
-        /* 粒子效果 */
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -2; /* 确保粒子在文案和按钮下方 */
-            opacity: 0.5;
-        }
+    .btn:hover {
+      transform: translate(-50%, -50%) scale(1.05);
+      box-shadow: 0 0 20px #fff, 0 0 60px #0ff, 0 0 100px #f0f;
+    }
 
-        /* 透明按钮 */
-        .button {
-            padding: 15px 30px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            font-size: 1.2rem;
-            cursor: pointer;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px); /* 毛玻璃效果 */
-            position: relative;
-            z-index: 10;
-        }
+    .text {
+      position: absolute;
+      white-space: nowrap;
+      font-weight: bold;
+      pointer-events: none;
+      user-select: none;
+      z-index: 5;
+      opacity: 0.9;
+      text-shadow: 0 0 4px rgba(0,0,0,0.6);
+      animation: floatUp 3s ease-out forwards;
+    }
 
-        .button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.7), 0 0 60px rgba(0, 255, 255, 0.5);
-            transform: scale(1.1);
-        }
-
-        /* 文案样式 */
-        .text {
-            position: fixed;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 0, 255, 0.5);
-            pointer-events: none;
-            animation: fadeOut 2s ease forwards;
-            font-family: 'Courier New', monospace;
-            transform-origin: center;
-        }
-
-        @keyframes fadeOut {
-            0% { opacity: 1; transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.2) rotate(5deg); } /* 轻微旋转，增加迷幻感 */
-            100% { opacity: 0; transform: scale(1.5) rotate(10deg); }
-        }
-    </style>
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-80px) scale(1.2);
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="background"></div>
-    <canvas id="particleCanvas"></canvas>
-    <button class="button">点击我！</button>
 
-    <script>
-        // 随机文案列表
-        const texts = [
-            '白落是笨蛋', 'bakabailuo', '你也是笨蛋', '笨蛋', 'baka！', '果冻好次',
-            '来吃木须肉', '笨', '笨蛋白落', '白落是大笨蛋', 'baka白落', '白落白落白落白落',
-            '白落超baka', '吃果冻不', '木须肉の诱惑', '白落你个大笨蛋', '别跑啊笨蛋',
-            '白落の傻笑', '果冻才是本体', '白落又迷路了', '笨蛋白落跑哪去啦', '白落の梦日记'
-        ];
+  <button class="btn" onclick="showRandomText()">点击我</button>
 
-        // 随机颜色
-        const colors = ['#ff69b4', '#00ffff', '#ff00ff', '#00ff00', '#ff4500', '#9370db', '#ffd700'];
+  <script>
+    const messages = [
+      \"白落是笨蛋\", \"bakabailuo\", \"你也是笨蛋\", \"笨蛋\", \"baka！\",
+      \"果冻好次\", \"来吃木须肉\", \"笨\", \"笨蛋白落\", \"白落是大笨蛋\",
+      \"baka白落\", \"白落白落白落白落\", \"baka!!\", \"一起baka吧！\",
+      \"白落梦游记\", \"吃货白落\", \"超可爱的baka白落\", \"baka雷达启动！\"
+    ];
 
-        // 按钮点击事件
-        const button = document.querySelector('.button');
-        let clickCount = 0;
+    const colors = [\"#ff69b4\", \"#00ffff\", \"#ffd700\", \"#7fff00\", \"#ff4500\", \"#8a2be2\", \"#00ff7f\"];
 
-        button.addEventListener('click', () => {
-            clickCount++;
-            const textElement = document.createElement('div');
-            textElement.className = 'text';
-            textElement.textContent = texts[Math.floor(Math.random() * texts.length)];
-            
-            // 设置随机字体大小（缩小范围，适配安卓）
-            const fontSize = 8 + Math.random() * 8; // 8px到16px
-            textElement.style.fontSize = `${fontSize}px`;
+    function showRandomText() {
+      const text = document.createElement(\"div\");
+      text.className = \"text\";
+      text.innerText = messages[Math.floor(Math.random() * messages.length)];
 
-            // 随机颜色
-            textElement.style.color = colors[Math.floor(Math.random() * colors.length)];
+      const fontSize = Math.floor(Math.random() * 16) + 14;
+      text.style.fontSize = fontSize + \"px\";
+      text.style.color = colors[Math.floor(Math.random() * colors.length)];
 
-            // 临时添加到页面以获取尺寸
-            textElement.style.visibility = 'hidden';
-            document.body.appendChild(textElement);
+      const maxX = window.innerWidth - 100;
+      const maxY = window.innerHeight - 100;
+      text.style.left = Math.random() * maxX + \"px\";
+      text.style.top = Math.random() * maxY + \"px\";
 
-            // 获取文案尺寸
-            const rect = textElement.getBoundingClientRect();
-            const textWidth = rect.width;
-            const textHeight = rect.height;
+      document.body.appendChild(text);
 
-            // 计算随机位置，确保不超出屏幕
-            const margin = 20; // 边距
-            const maxX = window.innerWidth - textWidth - margin;
-            const maxY = window.innerHeight - textHeight - margin;
-            const x = Math.random() * (maxX - margin) + margin;
-            const y = Math.random() * (maxY - margin) + margin;
+      setTimeout(() => {
+        text.remove();
+      }, 3000);
+    }
+  </script>
 
-            // 设置位置并显示
-            textElement.style.left = `${x}px`;
-            textElement.style.top = `${y}px`;
-            textElement.style.visibility = 'visible';
-
-            // 添加到页面
-            document.body.appendChild(textElement);
-
-            // 移除动画结束后的元素
-            textElement.addEventListener('animationend', () => {
-                textElement.remove();
-            });
-        });
-
-        // 粒子效果
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const particles = [];
-        for (let i = 0; i < 50; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                radius: Math.random() * 2 + 1,
-                speedX: Math.random() * 2 - 1,
-                speedY: Math.random() * 2 - 1,
-                color: colors[Math.floor(Math.random() * colors.length)]
-            });
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.x += p.speedX;
-                p.y += p.speedY;
-                if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-                if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = p.color;
-                ctx.fill();
-            });
-            requestAnimationFrame(animateParticles);
-        }
-
-        animateParticles();
-
-        // 适配窗口大小变化
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-    </script>
 </body>
 </html>
