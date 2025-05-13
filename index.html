@@ -1,1 +1,112 @@
-<h1>笨蛋白落</h1>
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
+
+// 首页组件
+const HomePage = ({ setIsFlipped }) => {
+  const [isFlipped, setIsFlippedState] = useState(false);
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 to-purple-200 flex flex-col items-center justify-center p-6">
+      {/* 卡片翻转动画 */}
+      <div 
+        className={`relative w-80 h-96 transition-transform duration-700 transform-gpu ${isFlipped ? 'rotate-y-180' : ''}`}
+        style={{ perspective: '1000px' }}
+      >
+        {/* 前面：白落照片 */}
+        <div 
+          className="absolute w-full h-full bg-white rounded-xl shadow-2xl flex flex-col items-center justify-center text-center p-6 backface-hidden"
+          style={{ backfaceVisibility: 'hidden' }}
+        >
+          < img 
+            src="https://picsum.photos/id/1011/400/500 " 
+            alt="白落" 
+            className="w-48 h-48 rounded-full object-cover border-4 border-pink-300 mb-4"
+          />
+          <h1 className="text-3xl font-bold text-gray-800">白落</h1>
+          <p className="text-lg text-gray-600 mt-2">一个可爱但有点笨的女孩</p >
+          <button 
+            onClick={() => setIsFlippedState(true)}
+            className="mt-6 px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600 transition-colors"
+          >
+            揭露真相 😏
+          </button>
+        </div>
+
+        {/* 后面：baka页面 */}
+        <div 
+          className="absolute w-full h-full bg-gradient-to-r from-yellow-200 to-red-300 rounded-xl shadow-2xl flex flex-col items-center justify-center text-center p-6 backface-hidden"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        >
+          <h1 className="text-5xl font-extrabold text-red-800 drop-shadow-md">BAKA！</h1>
+          <p className="text-xl text-red-700 mt-4 font-semibold">笨蛋の自我介绍</p >
+          < img 
+            src="https://picsum.photos/id/1015/400/300 " 
+            alt="baka" 
+            className="w-40 h-40 rounded-full object-cover border-4 border-red-400 mt-6"
+          />
+          <ul className="mt-6 space-y-2 text-left text-sm text-red-800 max-w-xs">
+            <li>✅ 昨天忘记带钥匙，被困门外</li>
+            <li>✅ 把盐当成糖放进咖啡里还喝了三口</li>
+            <li>✅ 手机没电前还在发朋友圈“谁懂啊今天好倒霉”</li>
+            <li>✅ 跟着导航走还能迷路三次</li>
+            <li>✅ 洗澡时手机响了，光着身子接电话</li>
+          </ul>
+          <Link to="/funny-page">
+            <button 
+              className="mt-6 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+            >
+              回到正常模式 🥺
+            </button>
+          </Link>
+        </div>
+      </div>
+
+      {/* 标语和装饰文字 */}
+      <div className="mt-12 text-center">
+        <h2 className="text-2xl font-semibold text-gray-700">
+          白落是笨蛋？这可能是个误会...
+        </h2>
+        <p className="text-gray-500 mt-2 italic">—— 或者只是她太可爱了才被这么说的吧</p >
+      </div>
+
+      {/* 彩蛋按钮 */}
+      <div className="mt-8">
+        <button 
+          onClick={() => alert("你也是笨蛋！❤️")}
+          className="px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+        >
+          点我看看彩蛋 💥
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 新页面组件
+const FunnyPage = () => {
+  return (
+    <div className="min-h-screen bg-yellow-100 flex flex-col items-center justify-center p-6">
+      <h1 className="text-4xl font-bold text-red-600">欢迎来到白落の笨蛋世界！</h1>
+      <p className="mt-4 text-lg text-red-500">恭喜你成功跳转到这个搞笑页面！</p >
+      < img src="https://picsum.photos/id/1018/600/400 " alt="搞笑图" className="mt-6 rounded-lg shadow-md" />
+      <Link to="/">
+        <button className="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+          返回主页
+        </button>
+      </Link>
+    </div>
+  );
+};
+
+// 主 App 组件
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/funny-page" element={<FunnyPage />} />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
