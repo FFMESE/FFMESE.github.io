@@ -1,288 +1,194 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
- <title>炫酷透明按钮</title>
- <style>
- body {
- margin: 0;
- height: 100vh;
- display: flex;
- justify-content: center;
- align-items: center;
- background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
- overflow: hidden;
- font-family: 'Arial', sans-serif;
- -webkit-font-smoothing: antialiased;
- -moz-osx-font-smoothing: grayscale;
- position: relative;
- }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>炫酷透明按钮</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a3d, #2a4066);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            touch-action: manipulation; /* 优化安卓触摸 */
+        }
 
- /* 按钮样式 */
- .glow-button {
- position: relative;
- padding: 15px 30px;
- font-size: 18px;
- color: #fff;
- background: rgba(255, 255, 255, 0.1);
- border: 2px solid rgba(255, 255, 255, 0.3);
- border-radius: 10px;
- backdrop-filter: blur(5px);
- cursor: pointer;
- text-transform: uppercase;
- letter-spacing: 2px;
- overflow: hidden;
- transition: all 0.3s ease;
- z-index: 10;
- touch-action: manipulation;
- }
+        /* 背景像素画（梦日记风格） */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://i.imgur.com/5zK8X4i.png') repeat; /* 梦日记风格像素背景 */
+            opacity: 0.3;
+            z-index: -1;
+            animation: pixelShift 20s linear infinite;
+        }
 
- .glow-button:hover {
- background: rgba(255, 255, 255, 0.2);
- box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
- transform: scale(1.05);
- }
+        @keyframes pixelShift {
+            0% { background-position: 0 0; }
+            100% { background-position: 100px 100px; }
+        }
 
- .glow-button::before {
- content: '';
- position: absolute;
- top: 0;
- left: -100%;
- width: 100%;
- height: 100%;
- background: linear -gradient(
- 90deg,
- transparent,
- rgba(255, 255, 255, 0.4),
- transparent
- );
- transition: 0.5s;
- }
+        /* 粒子效果 */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -2; /* 确保粒子在文案和按钮下方 */
+            opacity: 0.5;
+        }
 
- .glow-button:hover::before {
- left: 100%;
- }
+        /* 透明按钮 */
+        .button {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px); /* 毛玻璃效果 */
+            position: relative;
+            z-index: 10;
+        }
 
- /* 文本显示区域 */
- .message {
- position: absolute;
- text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
- opacity: 0;
- transform: translateY(-20px);
- transition: all 0.5s ease;
- pointer-events: none;
- z-index: 20;
- white-space: nowrap; /* 防止长文本换行 */
- }
+        .button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.7), 0 0 60px rgba(0, 255, 255, 0.5);
+            transform: scale(1.1);
+        }
 
- .message.show {
- opacity: 1;
- transform: translateY(0);
- }
+        /* 文案样式 */
+        .text {
+            position: fixed;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 0, 255, 0.5);
+            pointer-events: none;
+            animation: fadeOut 2s ease forwards;
+            font-family: 'Courier New', monospace;
+            transform-origin: center;
+        }
 
- /* 粒子效果容器 */
- #particles {
- position: absolute;
- top: 0;
- left: 0;
- width: 100%;
- height: 100%;
- pointer-events: none;
- z-index: 5;
- }
-
- /* 背景装饰 - 动态星空 */
- .stars {
- position: absolute;
- width: 100%;
- height: 100%;
- background: transparent;
- z-index: 1;
- }
-
- .star {
- position: absolute;
- background: #fff;
- border-radius: 50%;
- animation: twinkle 3s infinite;
- }
-
- @keyframes twinkle {
- 0%, 100% { opacity: 0.2; }
- 50% { opacity: 1; }
- }
-
- /* 动态流光线条 */
- .flow-line {
- position: absolute;
- width: 2px;
- height: 100px;
- background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
- animation: flow 5s linear infinite;
- z-index: 2;
- }
-
- @keyframes flow {
- 0% { transform: translateY(-100%); }
- 100% { transform: translateY(100vh); }
- }
- </style>
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(5deg); } /* 轻微旋转，增加迷幻感 */
+            100% { opacity: 0; transform: scale(1.5) rotate(10deg); }
+        }
+    </style>
 </head>
 <body>
- <button class="glow-button">点击我！</button>
- <canvas id="particles"></canvas>
- <div class="stars"></div>
- <div class="flow-lines"></div>
+    <div class="background"></div>
+    <canvas id="particleCanvas"></canvas>
+    <button class="button">点击我！</button>
 
- <script>
- // 文案列表
- const messages = [
- 'bakabailuo',
- '你也是笨蛋',
- '笨蛋',
- 'baka！',
- '果冻好次',
- '来吃木须肉',
- '笨',
- '笨蛋白落',
- '白落是大笨蛋',
- 'baka白落',
- '白落白落白落白落'
- ];
+    <script>
+        // 随机文案列表
+        const texts = [
+            '白落是笨蛋', 'bakabailuo', '你也是笨蛋', '笨蛋', 'baka！', '果冻好次',
+            '来吃木须肉', '笨', '笨蛋白落', '白落是大笨蛋', 'baka白落', '白落白落白落白落',
+            '白落超baka', '吃果冻不', '木须肉の诱惑', '白落你个大笨蛋', '别跑啊笨蛋',
+            '白落の傻笑', '果冻才是本体', '白落又迷路了', '笨蛋白落跑哪去啦', '白落の梦日记'
+        ];
 
- // 颜色调色板
- const colors = ['#ff4d4d', '#4dff4d', '#4d4dff', '#ffeb3b', '#ff69b4', '#00f7ff'];
+        // 随机颜色
+        const colors = ['#ff69b4', '#00ffff', '#ff00ff', '#00ff00', '#ff4500', '#9370db', '#ffd700'];
 
- // 按钮点击计数
- let clickCount = 0 ;
+        // 按钮点击事件
+        const button = document.querySelector('.button');
+        let clickCount = 0;
 
- // 按钮点击事件
- const button = document.querySelector('.glow-button');
+        button.addEventListener('click', () => {
+            clickCount++;
+            const textElement = document.createElement('div');
+            textElement.className = 'text';
+            textElement.textContent = texts[Math.floor(Math.random() * texts.length)];
+            
+            // 设置随机字体大小（缩小范围，适配安卓）
+            const fontSize = 8 + Math.random() * 8; // 8px到16px
+            textElement.style.fontSize = `${fontSize}px`;
 
- button.addEventListener('click', () => {
- clickCount++;
- const messageDiv = document.createElement('div');
- messageDiv.classList.add('message');
+            // 随机颜色
+            textElement.style.color = colors[Math.floor(Math.random() * colors.length)];
 
- // 随机选择文案
- const randomMessage = messages[Math.floor(Math.random() * messages.length)];
- messageDiv.textContent = randomMessage;
+            // 临时添加到页面以获取尺寸
+            textElement.style.visibility = 'hidden';
+            document.body.appendChild(textElement);
 
- // 随机文字大小（20px到60px）
- const randomSize = Math.floor(Math.random() * 41) + 20;
- messageDiv.style.fontSize = `${randomSize}px`;
+            // 获取文案尺寸
+            const rect = textElement.getBoundingClientRect();
+            const textWidth = rect.width;
+            const textHeight = rect.height;
 
- // 随机颜色
- const randomColor = colors[Math.floor(Math.random() * colors.length)];
- messageDiv.style.color = randomColor;
+            // 计算随机位置，确保不超出屏幕
+            const margin = 20; // 边距
+            const maxX = window.innerWidth - textWidth - margin;
+            const maxY = window.innerHeight - textHeight - margin;
+            const x = Math.random() * (maxX - margin) + margin;
+            const y = Math.random() * (maxY - margin) + margin;
 
- // 随机位置（避免边缘溢出）
- const maxX = window.innerWidth - randomSize * randomMessage.length * 0.6; // 粗略估算宽度
- const maxY = window.innerHeight - randomSize; // 考虑文字高度
- const randomX = Math.random() * maxX;
- const randomY = Math.random() * maxY;
- messageDiv.style.left = `${randomX}px`;
- messageDiv.style.top = `${randomY}px`;
+            // 设置位置并显示
+            textElement.style.left = `${x}px`;
+            textElement.style.top = `${y}px`;
+            textElement.style.visibility = 'visible';
 
- document.body.appendChild(messageDiv);
- messageDiv.classList.add('show');
+            // 添加到页面
+            document.body.appendChild(textElement);
 
- createParticles();
- setTimeout(() => {
- messageDiv.classList.remove('show');
- setTimeout(() => messageDiv.remove(), 500); // 动画结束后移除
- }, 2000); // 2秒后隐藏
- });
+            // 移除动画结束后的元素
+            textElement.addEventListener('animationend', () => {
+                textElement.remove();
+            });
+        });
 
- // 粒子效果
- const canvas = document.getElementById('particles');
- const ctx = canvas.getContext('2d');
- canvas.width = window.innerWidth;
- canvas.height = window.innerHeight;
+        // 粒子效果
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
- let particlesArray = [];
+        const particles = [];
+        for (let i = 0; i < 50; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 2 + 1,
+                speedX: Math.random() * 2 - 1,
+                speedY: Math.random() * 2 - 1,
+                color: colors[Math.floor(Math.random() * colors.length)]
+            });
+        }
 
- class Particle {
- constructor() {
- this.x = canvas.width / 2;
- this.y = canvas.height / 2;
- this.size = Math.random() * 8 + 2; // 更大范围的粒子大小
- this.speedX = Math.random() * 8 - 4; // 更快的速度
- this.speedY = Math.random() * 8 - 4;
- this.color = colors[Math.floor(Math.random() * colors.length)]; // 与文案颜色一致
- this.hue = Math.random() * 360; // 用于颜色渐变
- }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
 
- update() {
- this.x += this.speedX;
- this.y += this.speedY;
- this.size *= 0.95;
- this.hue += 5; // 颜色渐变
- this.color = `hsl(${this.hue}, 70%, 50%)`;
- }
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            });
+            requestAnimationFrame(animateParticles);
+        }
 
- draw() {
- ctx.fillStyle = this.color;
- ctx.beginPath();
- ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
- ctx.fill();
- }
- }
+        animateParticles();
 
- function createParticles() {
- const particleCount = /Android/i.test(navigator.userAgent) ? 30 : 60; // 增加粒子数量
- for (let i = 0; i < particleCount; i++) {
- particlesArray.push(new Particle());
- }
- }
-
- function animateParticles() {
- ctx.clearRect(0, 0, canvas.width, canvas.height);
- for (let i = 0; i < particlesArray.length; i++) {
- particlesArray[i].update();
- particlesArray[i].draw();
- if (particlesArray[i ].size <= 0.2) {
- particlesArray.splice(i, 1);
- i--;
- }
- }
- requestAnimationFrame(animateParticles);
- }
-
- animateParticles();
-
- // 动态星空
- const starsContainer = document.querySelector('.stars');
- const starCount = /Android/i.test(navigator.userAgent) ? 80 : 150; // 增加星星数量
- for (let i = 0; i < starCount; i++) {
- const star = document.createElement('div');
- star.classList.add('star');
- star.style.width = `${Math.random() * 3}px`; // 更大范围的星星
- star.style.height = star.style.width;
- star.style.left = `${Math.random() * 100}%`;
- star.style.top = `${Math.random() * 100}%`;
- star.style.animationDelay = `${Math.random() * 3}s`;
- star.style.background = colors[Math.floor(Math.random() * colors.length)]; // 彩色星星
- starsContainer.appendChild(star);
- }
-
- // 动态流光线条
- const flowLinesContainer = document.querySelector('.flow-lines');
- for (let i = 0; i < 10; i++) {
- const line = document.createElement('div');
- line.classList.add('flow-line');
- line.style.left = `${Math.random() * 100}%`;
- line.style.animationDelay = `${Math.random() * 5}s`;
- line.style.background = `linear-gradient(to bottom, rgba(255, 255, 255, 0), ${colors[Math.floor(Math.random() * colors.length)]}, rgba(255, 255, 255, 0))`;
- flowLinesContainer.appendChild(line);
- }
-
- // 窗口大小调整
- window.addEventListener('resize', () => {
- canvas.width = window.innerWidth;
- canvas.height = window.innerHeight;
- });
- </script>
+        // 适配窗口大小变化
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
 </body>
 </html>
