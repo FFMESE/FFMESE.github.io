@@ -11,11 +11,12 @@
  display: flex;
  justify-content: center;
  align-items: center;
- background: linear-gradient(135deg, #1a1a2e, #16213e);
+ background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
  overflow: hidden;
  font-family: 'Arial', sans-serif;
  -webkit-font-smoothing: antialiased;
  -moz-osx-font-smoothing: grayscale;
+ position: relative;
  }
 
  /* 按钮样式 */
@@ -34,7 +35,7 @@
  overflow: hidden;
  transition: all 0.3s ease;
  z-index: 10;
- touch-action: manipulation; /* 优化触摸响应 */
+ touch-action: manipulation;
  }
 
  .glow-button:hover {
@@ -50,7 +51,7 @@
  left: -100%;
  width: 100%;
  height: 100%;
- background: linear-gradient(
+ background: linear -gradient(
  90deg,
  transparent,
  rgba(255, 255, 255, 0.4),
@@ -66,35 +67,18 @@
  /* 文本显示区域 */
  .message {
  position: absolute;
- font-size: 36px;
- color: #ff4d4d;
- text-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff4d4d, 0 0 30px #ff4d4d;
+ text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
  opacity: 0;
  transform: translateY(-20px);
  transition: all 0.5s ease;
  pointer-events: none;
  z-index: 20;
+ white-space: nowrap; /* 防止长文本换行 */
  }
 
  .message.show {
  opacity: 1;
  transform: translateY(0);
- }
-
- /* 彩蛋 - 彩虹爆炸 */
- .rainbow-explosion {
- position: absolute;
- width: 100%;
- height: 100%;
- pointer-events: none;
- background: radial-gradient(circle, rgba(255, 255, 255, 0.5), transparent);
- opacity: 0;
- animation: explode 1s ease-out;
- }
-
- @keyframes explode {
- 0% { opacity: 1; transform: scale(0); }
- 100% { opacity: 0; transform: scale(2); }
  }
 
  /* 粒子效果容器 */
@@ -105,6 +89,7 @@
  width: 100%;
  height: 100%;
  pointer-events: none;
+ z-index: 5;
  }
 
  /* 背景装饰 - 动态星空 */
@@ -113,6 +98,7 @@
  width: 100%;
  height: 100%;
  background: transparent;
+ z-index: 1;
  }
 
  .star {
@@ -126,12 +112,28 @@
  0%, 100% { opacity: 0.2; }
  50% { opacity: 1; }
  }
+
+ /* 动态流光线条 */
+ .flow-line {
+ position: absolute;
+ width: 2px;
+ height: 100px;
+ background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+ animation: flow 5s linear infinite;
+ z-index: 2;
+ }
+
+ @keyframes flow {
+ 0% { transform: translateY(-100%); }
+ 100% { transform: translateY(100vh); }
+ }
  </style>
 </head>
 <body>
  <button class="glow-button">点击我！</button>
  <canvas id="particles"></canvas>
  <div class="stars"></div>
+ <div class="flow-lines"></div>
 
  <script>
  // 文案列表
@@ -142,11 +144,18 @@
  'baka！',
  '果冻好次',
  '来吃木须肉',
- '笨'
+ '笨',
+ '笨蛋白落',
+ '白落是大笨蛋',
+ 'baka白落',
+ '白落白落白落白落'
  ];
 
+ // 颜色调色板
+ const colors = ['#ff4d4d', '#4dff4d', '#4d4dff', '#ffeb3b', '#ff69b4', '#00f7ff'];
+
  // 按钮点击计数
- let clickCount = 0;
+ let clickCount = 0 ;
 
  // 按钮点击事件
  const button = document.querySelector('.glow-button');
@@ -160,9 +169,17 @@
  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
  messageDiv.textContent = randomMessage;
 
+ // 随机文字大小（20px到60px）
+ const randomSize = Math.floor(Math.random() * 41) + 20;
+ messageDiv.style.fontSize = `${randomSize}px`;
+
+ // 随机颜色
+ const randomColor = colors[Math.floor(Math.random() * colors.length)];
+ messageDiv.style.color = randomColor;
+
  // 随机位置（避免边缘溢出）
- const maxX = window.innerWidth - 150; // 假设文案最大宽度150px
- const maxY = window.innerHeight - 50; // 假设文案最大高度50px
+ const maxX = window.innerWidth - randomSize * randomMessage.length * 0.6; // 粗略估算宽度
+ const maxY = window.innerHeight - randomSize; // 考虑文字高度
  const randomX = Math.random() * maxX;
  const randomY = Math.random() * maxY;
  messageDiv.style.left = `${randomX}px`;
@@ -171,36 +188,12 @@
  document.body.appendChild(messageDiv);
  messageDiv.classList.add('show');
 
- // 彩蛋：第5次和第10次点击触发特殊效果
- if (clickCount === 5) {
- triggerRainbowExplosion();
- playSound('https://example.com/egg1.mp3'); // 替换为实际音效URL
- } else if (clickCount === 10) {
- triggerRainbowExplosion();
- playSound('https://example.com/egg2.mp3'); // 替换为实际音效URL
- clickCount = 0; // 重置计数
- }
-
  createParticles();
  setTimeout(() => {
  messageDiv.classList.remove('show');
- setTimeout(() => messageDiv.remove(), 500); // 动画结束后 移除
+ setTimeout(() => messageDiv.remove(), 500); // 动画结束后移除
  }, 2000); // 2秒后隐藏
  });
-
- // 彩蛋：彩虹爆炸效果
- function triggerRainbowExplosion() {
- const explosion = document.createElement('div');
- explosion.classList.add('rainbow-explosion');
- document.body.appendChild(explosion);
- setTimeout(() => explosion.remove(), 1000);
- }
-
- // 播放音效（需提供实际音效文件）
- function playSound(url) {
- const audio = new Audio(url);
- audio.play().catch(err => console.log('音效播放失败:', err));
- }
 
  // 粒子效果
  const canvas = document.getElementById('particles');
@@ -214,16 +207,19 @@
  constructor() {
  this.x = canvas.width / 2;
  this.y = canvas.height / 2;
- this.size = Math.random() * 5 + 2;
- this.speedX = Math.random() * 6 - 3;
- this.speedY = Math.random() * 6 - 3;
- this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+ this.size = Math.random() * 8 + 2; // 更大范围的粒子大小
+ this.speedX = Math.random() * 8 - 4; // 更快的速度
+ this.speedY = Math.random() * 8 - 4;
+ this.color = colors[Math.floor(Math.random() * colors.length)]; // 与文案颜色一致
+ this.hue = Math.random() * 360; // 用于颜色渐变
  }
 
  update() {
  this.x += this.speedX;
  this.y += this.speedY;
  this.size *= 0.95;
+ this.hue += 5; // 颜色渐变
+ this.color = `hsl(${this.hue}, 70%, 50%)`;
  }
 
  draw() {
@@ -235,7 +231,7 @@
  }
 
  function createParticles() {
- const particleCount = /Android/i.test(navigator.userAgent) ? 20 : 50; // 安卓设备减少粒子数量
+ const particleCount = /Android/i.test(navigator.userAgent) ? 30 : 60; // 增加粒子数量
  for (let i = 0; i < particleCount; i++) {
  particlesArray.push(new Particle());
  }
@@ -246,7 +242,7 @@
  for (let i = 0; i < particlesArray.length; i++) {
  particlesArray[i].update();
  particlesArray[i].draw();
- if (particlesArray[i].size <= 0.2) {
+ if (particlesArray[i ].size <= 0.2) {
  particlesArray.splice(i, 1);
  i--;
  }
@@ -258,16 +254,28 @@
 
  // 动态星空
  const starsContainer = document.querySelector('.stars');
- const starCount = /Android/i.test(navigator.userAgent) ? 50 : 100; // 安卓设备减少星星数量
+ const starCount = /Android/i.test(navigator.userAgent) ? 80 : 150; // 增加星星数量
  for (let i = 0; i < starCount; i++) {
  const star = document.createElement('div');
  star.classList.add('star');
- star.style.width = `${Math.random() * 2}px`;
+ star.style.width = `${Math.random() * 3}px`; // 更大范围的星星
  star.style.height = star.style.width;
  star.style.left = `${Math.random() * 100}%`;
  star.style.top = `${Math.random() * 100}%`;
  star.style.animationDelay = `${Math.random() * 3}s`;
+ star.style.background = colors[Math.floor(Math.random() * colors.length)]; // 彩色星星
  starsContainer.appendChild(star);
+ }
+
+ // 动态流光线条
+ const flowLinesContainer = document.querySelector('.flow-lines');
+ for (let i = 0; i < 10; i++) {
+ const line = document.createElement('div');
+ line.classList.add('flow-line');
+ line.style.left = `${Math.random() * 100}%`;
+ line.style.animationDelay = `${Math.random() * 5}s`;
+ line.style.background = `linear-gradient(to bottom, rgba(255, 255, 255, 0), ${colors[Math.floor(Math.random() * colors.length)]}, rgba(255, 255, 255, 0))`;
+ flowLinesContainer.appendChild(line);
  }
 
  // 窗口大小调整
